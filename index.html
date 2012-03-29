@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title> Ontology Visualization </title>
+	<script src="js/libs/jquery.js"></script>
+	<script data-main="js/require-config.js" src="js/libs/require.js"></script>
+</head>
+
+<body>
+	<button id="test-ontology">Convert Test Ontology to JSON </button>
+
+    <script type="text/javascript">
+        $(function() {
+            $("#test-ontology").click(function() {
+                var req = $.ajax({
+                        url: "test-ontology.xml",
+                        dataType: "XML"
+                    });
+
+                req.done(function(owl) {
+                    require(['cs!ontology'], function(Owl) {
+                        var json = new Owl(owl)
+                        console.log(json)
+                    });
+                })
+                
+            });
+        })
+    </script>
+</body>
+</html>
