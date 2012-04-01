@@ -39,14 +39,14 @@
           <a class="brand" href="./index.html">Owl-Viz</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active">
+              <li class="">
                 <a href="./index.html">Home</a>
               </li>
               <li class="">
                 <a href="./index.html">Features</a>
               </li>
               <li class="divider-vertical"></li>
-              <li class="">
+              <li class="active">
                 <a href="./demo.html">Demo</a>
               </li>
             </ul>
@@ -57,33 +57,9 @@
 
     <div class="container">
 
-      <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit">
-        <h1>Owl visualizer</h1>
-        <p>Simple and editable ontology visualizer + import XML ontologies from Protege.</p>
-        <p class="download-info">
-          <a href="https://github.com/alexbardas/owl-viz/" class="btn btn-primary btn-large">View project on GitHub</a>
-          <a href="demo.html" class="btn btn-large">View a demo</a>
-        </p>
-      </div>
-
-      <div class="bs-links">
-        <ul class="quick-links">
-          <li>
-            <iframe class="github-btn" src="http://markdotto.github.com/github-buttons/github-btn.html?user=alexbardas&repo=owl-viz&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="112px" height="20px"></iframe>
-          </li>
-          <li>
-            <iframe class="github-btn" src="http://markdotto.github.com/github-buttons/github-btn.html?user=alexbardas&repo=owl-viz&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="98px" height="20px"></iframe>
-          </li>
-          <li class="follow-btn">
-            <a href="https://twitter.com/alexbardas" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @alexbardas</a>
-          </li>
-        </ul>
-      </div>
-
-
+        <button id="test-ontology" class="btn">Convert Test Ontology to JSON </button>
+      
       <hr class="soften">
-
        <!-- Footer
         ================================================== -->
       <footer class="footer">
@@ -98,8 +74,27 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     <script src="js/libs/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script data-main="js/require-config.js" src="js/libs/require.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            $("#test-ontology").click(function() {
+                var req = $.ajax({
+                        url: "test-ontology.xml",
+                        dataType: "XML"
+                    });
+
+                req.done(function(owl) {
+                    require(['cs!ontology'], function(Owl) {
+                        var json = new Owl(owl)
+                        console.log(json)
+                    });
+                })
+                
+            });
+        })
+    </script>
   </body>
 </html>
