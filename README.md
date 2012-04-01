@@ -10,7 +10,7 @@ Web visualization of ontologies created with Protege (Java)
 * Step 1: Create a test ontology in Protege 			.. DONE
 * Step 2: Create a js parser (XML -> JSON)  			.. DONE
 * Step 3: Integrate a HTML boilerplate (twitter bootstrap)
-* Step 4: Create a DOM representation of the JSON (jquery plugin or DOM)
+* Step 4: Create a DOM representation of the JSON (jquery plugin or Backbone)
 * Step 5: Integrate a cool interactive data visualization tool (SpaceTree from thejit)
 * Step 6: Deploy application on Heroku
 * Step 7: Create the possibility to upload custom valid XML owls and save them to DB

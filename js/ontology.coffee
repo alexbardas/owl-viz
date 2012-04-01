@@ -3,12 +3,15 @@
 # First it creates the ontology's tree defined by root and children nodes
 # Then, it creates a proper json from this tree
 
-define ['cs!log', 'cs!node', 'cs!root'], (log, Node, Root) ->
+define ['cs!log', 'cs!tree'], (log, Tree) ->
     # set debug to true or false
     log.debug(false)
     print = log.info
     warn = log.warn
     error = log.error
+
+    Node = Tree.Node
+    Root = Tree.Root
 
     class Ontology
         type = Object.prototype.toString
