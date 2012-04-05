@@ -55,10 +55,17 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span4">
+          <div class="well sidebar-nav owl-tree">
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span8">
 
-        <button id="test-ontology" class="btn">Convert Test Ontology to JSON </button>
-      
+          <button id="test-ontology" class="btn">Convert Test Ontology to JSON </button>
+        </div>
+      </div><!--/row-->
       <hr class="soften">
        <!-- Footer
         ================================================== -->
@@ -67,7 +74,7 @@
         <p>Code licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>. Documentation licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
       </footer>
 
-    </div><!-- /container -->
+    </div><!-- /container-fluid -->
 
 
 
@@ -75,26 +82,27 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/libs/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="js/libs/bootstrap.min.js"></script>
     <script data-main="js/require-config.js" src="js/libs/require.js"></script>
 
     <script type="text/javascript">
-        $(function() {
-            $("#test-ontology").click(function() {
-                var req = $.ajax({
-                        url: "test-ontology.xml",
-                        dataType: "XML"
-                    });
+          $("#test-ontology").click(function() {
+              var req = $.ajax({
+                      url: "test-ontology.xml",
+                      dataType: "XML"
+                  });
 
-                req.done(function(owl) {
-                    require(['cs!ontology'], function(Owl) {
-                        var json = new Owl(owl)
-                        console.log(json)
-                    });
-                })
-                
-            });
-        })
+              req.done(function(owl) {
+                  require(['cs!ontology'], function(Owl) {
+                      var json = new Owl(owl)
+                      require(['cs!treeview'], function(TreeView) {
+                        var n = new TreeView(json);
+                        $(".owl-tree").html(n.render().el)
+                      });
+                  });
+              })    
+          });
+      
     </script>
   </body>
 </html>
