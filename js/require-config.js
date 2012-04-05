@@ -1,8 +1,13 @@
 require.config({
 	paths: {
+		"backbone": "backbone-loader",
 		"cs": "libs/cs",
 		"log": "log",
+		"mustache": "mustache-loader",
 		"tree": "tree",
-		"owl": "ontology"
-	}
+		"treeview": "treeview",
+		"owl": "ontology",
+		"underscore": "libs/underscore"
+	},
+	waitSeconds: 3
 })
