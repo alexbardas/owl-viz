@@ -4,9 +4,6 @@ body {
   background-color: #EBEBEB;
   }
 
-i {
-  margin-left: 10px;
-}
 .hero-unit {
   text-align: center;
   background-color: rgba(200, 200, 200, .7);
@@ -15,6 +12,22 @@ i {
 }
 .hero-unit h1 {
   line-height: 1.2;
+}
+
+.owl-tree {
+  font-size: 12px;
+}
+
+.owl-tree .nav {
+  margin-bottom: 0px;
+}
+
+.owl-tree .pad-left-10 {
+  padding-left: 10px;
+}
+
+#owl-viz {
+  height: 500px;
 }
 
 /* Quick links
