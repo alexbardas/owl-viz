@@ -1,109 +1,125 @@
-define ['backbone', 'cs!mustache', 'underscore', 'cs!log', 'text!templates/item.mjs'], (Backbone, Mustache, _, log, ItemTemplate) ->
-	log.debug(true)
-	print = log.info
-	warn = log.warn
-	error = log.error
+define ['backbone', 'underscore', 'cs!mustache', 'cs!log', 'text!templates/item.mjs'], (Backbone, _, Mustache, log, ItemTemplate) ->
+    log.debug(true)
+    print = log.info
+    warn = log.warn
+    error = log.error
 
-	class ItemModel extends Backbone.Model
-		defaults:
-			parent: null
-			name: '',
-			isExpandable: false,
-			childrenNo: 1
+    tree = {}
 
-	'''	
-		Render a new "ul" element
-	'''
-	class ItemView extends Backbone.View
-		tagName: 'ul'
-		className: 'nav nav-list'
-		template: ItemTemplate
-		$previousElement: ''
+    addItems = ($el, path) ->
+        print "Adding elements from #{path}"
 
-		events: 
-			"click li": "expandList"
-			#"dblclick li": "editContent"
-			#"keydown li": "saveContent"
+        parent = tree
+        path.split('/').forEach (key) ->
+            if key
+                parent = parent[key]
 
-		initialize: (options) ->
-			#print "Initializing Item View"
-			if options? and options.model?
-				@model = options.model
+        _.keys(parent).forEach (key, index) ->
+            childrenNo = _.keys(parent[key]).length
+            params =
+                childrenNo: childrenNo
+                isExpandable: childrenNo > 0
+                name: key
+                path: if path then path + "/" + key else key
 
-		render: ->
-			#print "Rendering Item View"
-			parent = @model.get('parent')
-			attr = @model.attributes
-			@.$el.html(Mustache.to_html(@template, attr))
-			if parent? then @.$el.hide() else @.$el.show()
-			@
+            model = new ItemModel(params)
+            view = new ItemView({model: model})
 
-		reRender: ($el) ->
-			print "Rerendering Item View"
-			parent = @model.get('parent')
-			attr = @model.attributes
-			$el = Mustache.to_html(@template, attr)
+            $el.append(view.render().el)
 
-		expandList: (event)->
-			event.stopPropagation()
-			$el = @.$el.find("li:first")
-			if $el.is(@$previousElement)
-				@$previousElement.attr('contenteditable', false);
+    class TreeView extends Backbone.View
+        tagName: 'ul'
+        className: 'nav nav-list'
 
-			if $el.find("a").attr('contenteditable') is "true"
-				return @
-			isExpanded = @.model.get('isExpanded')
-			@.model.set('isExpanded', !isExpanded)
+        initialize: (json) ->
+            print "Initializing Tree View"
+            tree = json or {}
+            addItems.call(@, @$el, '')
+            @$el.find("a").first().click()
 
-			$el.nextAll().toggle();
-			@.reRender($el)
 
-			$('html, body').animate(
-		         scrollTop: $el.offset().top - 50
-		         500
-		  	)
+    class ItemModel extends Backbone.Model
+        defaults:
+            path: ''
+            name: ''
+            isActive: false
+            isExpandable: false
+            isExpanded: false
+            editable: false
+            childrenNo: 1
 
-		editContent: (event)->
-			event.stopPropagation()
-			$el = @.$el.find("li:first").find("a")
-			$el.attr('contenteditable', true)
-			$el.focus()
-			@$previousElement = $el
+    '''
+        Render a new "ul" element
+    '''
+    class ItemView extends Backbone.View
+        tagName: 'li'
+        template: ItemTemplate
+        $previousElement: ''
 
-		saveContent: (event)->
-			event.stopPropagation()
-			if event.keyCode is 13
-				@.$el.find("li:first a").attr('contenteditable', false)
+        events:
+            "click a": "expandList"
+            #"dblclick li": "editContent"
+            #"keydown li": "saveContent"
 
-	class TreeView extends Backbone.View
-		tagName: 'ul'
-		className: 'nav nav-list'
+        initialize: (options) ->
+            #print "Initializing Item View"
+            if options? and options.model?
+                @model = options.model
 
-		initialize: (json) ->
-			#print "Initializing Tree View"
-			json = json or {}
-			@.createTree(json, @el, null)
-		
-		# Recursively creat the needed Tree element
-		# of the initial json
-		createTree: (json, el, root, parent) ->
-			print "Creating new tree branch"
-			if root?
-				@.addItems(el, {parent: parent or null, name: root, isExpandable: true, isExpanded: false, childrenNo: _.keys(json).length})
-				el = $(el).children().last();
+        render: ->
+            print "Rendering Item View"
+            @$el.html(Mustache.to_html(@template, @model.toJSON()))
+            @$el.find( "ul" ).last().sortable({connectWith: ".connectedSortable"}).disableSelection();;
+            @
 
-			for key of json
-				print "Process element '#{key}' with parent '#{root}'"
-				if _.isEmpty json[key]
-					@.addItems(el, {name: key, parent: root or null})
-				else
-					@.createTree(json[key], el, key, root)
+        expandList: (event)->
+            event.stopPropagation()
 
-		addItems: (el, params={}) ->
-			print "Adding '#{params.name}'"
+            $.each $("li.active"), (k, v) ->
+                $(v).removeClass("active")
+            @$el.addClass('active')
 
-			model = new ItemModel(params)
-			view = new ItemView({model: model})
-			$(el).append(view.render().el)
+            $el = @$el.find("ul").first()
 
-	return TreeView
+            #if $el.is(@$previousElement)
+            #   @$previousElement.attr('contenteditable', false);
+
+            #if $el.find("a").attr('contenteditable') is "true"
+            #   return @
+
+            isExpandable = @model.get('isExpandable')
+
+            if not isExpandable
+                return @
+
+            isExpanded = @model.get('isExpanded')
+            @model.set('isExpanded', !isExpanded)
+            @$el.find("i").toggleClass('icon-plus icon-minus')
+            @model.set('isActive', true)
+
+
+            if (!@hasBeenExpanded)
+                @hasBeenExpanded = true
+                addItems.call(@, $el, @model.get('path'))
+                $el.hide()
+
+            $el.slideToggle(200);
+
+            $('.owl-tree').animate(
+                 scrollTop: $el.offset().top - 50
+                 300
+            )
+
+        editContent: (event) ->
+            event.stopPropagation()
+            $el = @.$el.find("li:first").find("a")
+            $el.attr('contenteditable', true)
+            $el.focus()
+            @$previousElement = $el
+
+        saveContent: (event)->
+            event.stopPropagation()
+            if event.keyCode is 13
+                @.$el.find("li:first a").attr('contenteditable', false)
+
+    return TreeView
